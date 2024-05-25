@@ -1,4 +1,4 @@
-package com.regfanal
+package com.fanal_eduotter
 
 import android.os.Build
 import android.os.Bundle

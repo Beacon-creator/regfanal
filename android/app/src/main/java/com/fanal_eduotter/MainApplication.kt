@@ -1,4 +1,4 @@
-package com.regfanal
+package com.fanal_eduotter
 
 import android.app.Application
 import android.content.res.Configuration
