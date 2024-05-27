@@ -52,7 +52,7 @@
 			<dict>
 				<key>CFBundleURLSchemes</key>
 				<array>
-					<string>my-scheme</string>
+					<string>com.fanal.eduotter</string>
 				</array>
 			</dict>
 		</array>

@@ -118,7 +118,7 @@ const BUTTON = {
   largebutton: {
     width: 320,
     height: 50,
-    paddingVertical: 14,
+    paddingVertical: 12,
     paddingHorizontal: 10,
     marginTop: 36,
     borderRadius: 8,
@@ -128,8 +128,7 @@ const BUTTON = {
   largebutton2: {
     width: 320,
     height: 50,
-    paddingVertical: 14,
-    paddingHorizontal: 10,
+    paddingVertical: 10,
     marginTop: 16,
     borderRadius: 8,
     // backgroundColor: COLORS.secondarybackground,

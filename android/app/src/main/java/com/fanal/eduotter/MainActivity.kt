@@ -1,4 +1,4 @@
-package com.fanal_eduotter
+package com.fanal.eduotter
 
 import android.os.Build
 import android.os.Bundle

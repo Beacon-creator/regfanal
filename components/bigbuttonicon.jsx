@@ -14,8 +14,8 @@ export default function FlatButton2({ text,iconSource, onPress, textcolor, backC
           backgroundColor: backColor
         }}
       >
-        <Image source={iconSource} />
-        <Text style={{ ...BUTTONText.text2, paddingLeft: 5, color: textcolor }}> {text} </Text>
+        <Image source={iconSource} style={{marginVertical: 1}} />
+        <Text style={{ ...BUTTONText.text2, paddingLeft: 5,paddingTop: 2.5, color: textcolor }}> {text} </Text>
       </View>
     </TouchableOpacity>
   );

@@ -20,17 +20,22 @@ import {
 } from "../constants/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FlatButton2 from "../components/button2";
-import GoogleIcon from "../assets/google.png";
+import DiscordIcon from "../assets/discord.png";
 import AppleIcon from "../assets/apple.png";
 import Check from "../assets/checksuccess.png";
 import Bigbuttonicon from "../components/bigbuttonicon";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as WebBrowser from "expo-web-browser";
+import * as AuthSession from "expo-auth-session";
+import * as Google from 'expo-auth-session/providers/google';
+
+
+WebBrowser.maybeCompleteAuthSession();
 
 const Login = () => {
   const navigation = useNavigation(); // Initialize navigation
-
   const [isLoading, setIsLoading] = useState(false);
   const [isPasswordShown, setIsPasswordShown] = useState(false);
   const [username, setUsername] = useState("");
@@ -101,10 +106,76 @@ const Login = () => {
     }
   };
 
-  const handleLoginGoogle = () =>{
 
-  };
+const handleLoginDiscord = async () => {
+  try {
+    setIsLoading(true);
+    console.log("Starting Discord login...");
 
+    const redirectUri = AuthSession.makeRedirectUri({
+      scheme: "com.fanal.eduotter", // Your app's custom scheme
+    });
+    console.log("Redirect URI:", redirectUri);
+
+    const authUrl = `https://firstbackend-1c5d.onrender.com/api/auth/discord?redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}`;
+    console.log("Auth URL:", authUrl);
+
+    const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+    console.log("Auth result:", result);
+
+    if (result.type === "success" && result.url) {
+      const redirectUrl = result.url;
+      const tokenMatch = redirectUrl.match(/token=([^&]*)/);
+
+      if (tokenMatch) {
+        const token = tokenMatch[1];
+        console.log("Extracted token:", token);
+
+        // Store the token in AsyncStorage
+        await AsyncStorage.setItem("auth_token", token);
+
+        Alert.alert("Success", "Login successful!", [
+          {
+            text: "OK",
+            onPress: () => {
+              navigation.navigate("Onboarding");
+            },
+          },
+        ]);
+      } else {
+        console.log("Token not found in the URL");
+        Alert.alert(
+          "Login Failed",
+          "Token not found. Something went wrong during the login process."
+        );
+      }
+    } else {
+      console.log("Authentication failed or cancelled:", result);
+      Alert.alert(
+        "Login Failed",
+        "Something went wrong during the login process."
+      );
+    }
+  } catch (error) {
+    console.error("Error during Discord login:", error);
+    Alert.alert("Error", "Something went wrong. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+
+
+ const handleLoginApple = async () =>{
+   Alert.alert(
+     "Login Failed",
+     "Apple login is not available for now."
+   );
+ }
+ 
   const handleTapSignup = () => {
     // Navigate to Forgot Password screen
     navigation.navigate("Signup");
@@ -287,23 +358,26 @@ const Login = () => {
         </View>
 
         <View style={{ marginTop: 20 }}>
+          {isLoading && (
+            <ActivityIndicator size="small" color={COLORS.primarybackground} />
+          )}
           <Bigbuttonicon
-            iconSource={GoogleIcon}
-            text="Sign in with Google"
+            iconSource={DiscordIcon}
+            text="Sign in with Discord"
             backColor={COLORS.transparent}
             textcolor={COLORS.black}
             onPress={() => {
-              if (!isLoginDisabled) {
-                handleLoginGoogle();
-              }
+              handleLoginDiscord();
             }}
-          
           />
           <Bigbuttonicon
             iconSource={AppleIcon}
             text="Sign in with Apple"
             backColor={COLORS.black}
             textcolor={COLORS.white}
+            onPress={() => {
+              handleLoginApple();
+            }}
           />
         </View>
       </View>

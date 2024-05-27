@@ -83,9 +83,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.fanal_eduotter'
+    namespace 'com.fanal.eduotter'
     defaultConfig {
-        applicationId 'com.fanal_eduotter'
+        applicationId 'com.fanal.eduotter'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -3,8 +3,35 @@
     "name": "regfanal",
     "slug": "regfanal",
     "version": "1.0.0",
+    "orientation": "portrait",
+    "splash": {
+      "image": "./assets/Logo7.png",
+      "resizeMode": "contain"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fanal.eduotter"
+    },
     "android": {
-      "package": "com.fanal_eduotter"
+      "package": "com.fanal.eduotter"
+    },
+    "web": {
+      "favicon": "./assets/backicon.png"
+    },
+    "scheme": [
+      "my-scheme",
+      "com.fanal.eduotter"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a6e50230-a66f-4b59-94fa-63f60cf84ef5"
+      }
     }
   }
 }
