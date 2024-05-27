@@ -23,7 +23,6 @@ import FlatButton2 from "../components/button2";
 import GoogleIcon from "../assets/google.png";
 import AppleIcon from "../assets/apple.png";
 import Check from "../assets/checksuccess.png";
-//import spincircle from "./assets/spin-circle.gif";
 import Bigbuttonicon from "../components/bigbuttonicon";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";

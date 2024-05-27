@@ -9,8 +9,7 @@
     },
     "preview": {
       "android": {
-        "buildType": "apk",
-        "distribution": "internal"
+        "buildType": "apk"
       }
     },
     "production": {
@@ -24,3 +23,4 @@
     "production": {}
   }
 }
+

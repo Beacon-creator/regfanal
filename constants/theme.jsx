@@ -70,7 +70,7 @@ const STYLES = {
     flex: 1,
     justifyContent: "top", //column
     alignItems: "center", //row
-    paddingTop: 20,
+    paddingTop: 12,
     paddingHorizontal: 30,
     backgroundColor: COLORS.white, // Corrected spelling
   },
