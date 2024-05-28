@@ -3,10 +3,12 @@
     "name": "regfanal",
     "slug": "regfanal",
     "version": "1.0.0",
+    "icon": "./assets/fanal.png",
     "orientation": "portrait",
     "splash": {
-      "image": "./assets/checksuccess.png",
-      "resizeMode": "contain"
+      "image": "./assets/lefanal.png",
+      "resizeMode": "cover",
+       "backgroundColor": "#ffffff"  
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -19,7 +21,11 @@
       "bundleIdentifier": "com.fanal.eduotter"
     },
     "android": {
-      "package": "com.fanal.eduotter"
+      "package": "com.fanal.eduotter",
+       "adaptiveIcon": {
+        "foregroundImage": "./assets/fanal.png",
+        "backgroundColor": "#ffffff"
+      }
     },
     "web": {
       "favicon": "./assets/checksuccess.png"
