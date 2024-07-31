@@ -20,13 +20,14 @@ const Onboarding = () => {
 
   return (
     <View style={STYLES.container}>
-      <Image source={images.logo3} style={IMG.headimage} />
-
+        <Text style={{   marginTop: 50,
+          fontSize: SIZES.xxLarge,
+          fontWeight: FONT.bold, color: COLORS.primarybackground }}>RegFanal</Text>
       <Image source={images.onboarding1} style={IMG.midimage} />
 
       <Text
         style={{
-          marginTop: 10,
+          marginTop: 20,
           fontSize: SIZES.xxLarge,
           fontWeight: FONT.bold,
         }}

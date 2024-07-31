@@ -26,6 +26,11 @@ import Check from "../assets/checksuccess.png";
 import Bigbuttonicon from "../components/bigbuttonicon";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
+import {
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
+import "../googleConfig"; // Import the Google Signin configuration
 
 const Signup = () => {
   const navigation = useNavigation(); // Initialize navigation
@@ -50,7 +55,6 @@ const Signup = () => {
     password
   );
 
-
   const handleSignup = async () => {
     try {
       setIsLoading(true);
@@ -67,7 +71,6 @@ const Signup = () => {
         );
 
         // Handle successful signup
-       // console.log("Signup successful:", response.data);
         Alert.alert(
           "Success",
           "Signup successful!",
@@ -79,7 +82,7 @@ const Signup = () => {
                   email: email,
                 });
               },
-              style: "cancel", // You can customize the button style
+              style: "cancel",
             },
             {
               text: "Sign in",
@@ -95,7 +98,7 @@ const Signup = () => {
             cancelable: false,
             style: styles.alert,
             messageStyle: styles.message,
-          } // You can specify whether the alert is cancelable
+          }
         );
       } else {
         // Display an error message if any field is invalid
@@ -103,7 +106,6 @@ const Signup = () => {
       }
     } catch (error) {
       // Handle errors
-     // console.error("Error signing up:", error.response.data);
       Alert.alert(
         "Error",
         "Email is already in use. Please check details again."
@@ -193,10 +195,47 @@ const Signup = () => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.idToken;
+
+      // Send the idToken to your backend for verification and login
+      const response = await axios.post(
+        "https://firstbackend-1c5d.onrender.com/api/auth/google",
+        {
+          token: idToken,
+        }
+      );
+
+      if (response.status === 200) {
+        // Handle successful login
+        Alert.alert("Success", "Login successful!");
+        // You can navigate to the next screen or perform other actions here
+      } else {
+        Alert.alert("Error", "Login failed. Please try again.");
+      }
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        Alert.alert("Cancelled", "User cancelled the login process");
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Alert.alert("In Progress", "Login is in progress");
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert(
+          "Play Services Not Available",
+          "Play services are not available or outdated"
+        );
+      } else {
+        Alert.alert("Error", "An error occurred during login");
+      }
+    }
+  };
+
   return (
     <SafeAreaView style={{ ...STYLES.container, flex: 1 }}>
       <View>
-        <View style={{ marginTop: 15 }}>
+        <View style={{ marginTop: 50 }}>
           <Text style={BodyText.Header}>Sign up to new opportunities</Text>
         </View>
 
@@ -213,11 +252,9 @@ const Signup = () => {
             style={[styles.input, isUsernameFocused && styles.inputFocused]}
             value={username}
             onChangeText={handleUsernameChange}
-            // Clear the text input value when it's focused
             onFocus={handleUsernameFocus}
             onBlur={() => setIsUsernameFocused(false)}
           />
-          {/* Absolute positioning for the placeholder text */}
           <Text
             style={[
               styles.placeholder,
@@ -226,8 +263,6 @@ const Signup = () => {
           >
             Username
           </Text>
-
-          {/* Checkmark icon for valid email */}
           {isUsernameValid && <Image source={Check} style={styles.icon} />}
         </View>
 
@@ -241,24 +276,20 @@ const Signup = () => {
           <TextInput
             placeholderTextColor={COLORS.black}
             keyboardType="email-address"
-            style={[styles.input, isUsernameFocused && styles.inputFocused]}
+            style={[styles.input, isEmailFocused && styles.inputFocused]}
             value={email}
             onChangeText={handleEmailChange}
-            // Clear the text input value when it's focused
             onFocus={handleEmailFocus}
             onBlur={() => setIsEmailFocused(false)}
           />
-          {/* Absolute positioning for the placeholder text */}
           <Text
             style={[
               styles.placeholder,
               isEmailFocused && { color: COLORS.primarybackground },
             ]}
           >
-            Email
+            Email Address
           </Text>
-
-          {/* Checkmark icon for valid email */}
           {isEmailValid && <Image source={Check} style={styles.icon} />}
         </View>
 
@@ -271,14 +302,14 @@ const Signup = () => {
         >
           <TextInput
             placeholderTextColor={COLORS.black}
-            secureTextEntry={!isPasswordShown}
+            keyboardType="default"
             style={[styles.input, isPasswordFocused && styles.inputFocused]}
             value={password}
+            secureTextEntry={!isPasswordShown}
             onChangeText={handlePasswordChange}
             onFocus={handlePasswordFocus}
             onBlur={() => setIsPasswordFocused(false)}
           />
-          {/* Absolute positioning for the placeholder text */}
           <Text
             style={[
               styles.placeholder,
@@ -287,149 +318,103 @@ const Signup = () => {
           >
             Password
           </Text>
-
-          {/* Checkmark icon for valid password */}
-          {isPasswordValid && <Image source={Check} style={styles.icon} />}
           {renderShowText()}
+          {isPasswordValid && <Image source={Check} style={styles.icon} />}
         </View>
 
-        <View style={{ marginVertical: 5 }}>
-          <Text
-            style={{
-              color: COLORS.othertext,
-              fontSize: SIZES.xxSmall,
-              fontWeight: FONT.bold,
-            }}
-          >
-            6+ characters, atleast 1 uppercase & 1 number
-          </Text>
-        </View>
-
-        <View style={{ position: "relative" }}>
-          {/* Render the FlatButton2 and ActivityIndicator inside a parent container */}
-          <View style={BUTTON.activitybutton}>
-            {/* Render ActivityIndicator */}
-            {isLoading && (
-              <ActivityIndicator
-                size="small"
-                color={COLORS.primarybackground}
-              />
-            )}
-          </View>
-          {/* Render FlatButton2 */}
-          <FlatButton2
-            text="Continue"
-            backColor={COLORS.primarybackground}
-            textcolor={COLORS.white}
-            onPress={() => {
-              if (!isSignupDisabled) {
-                handleSignup();
-              }
-            }}
+        <View style={styles.buttonContainer}>
+          <Bigbuttonicon
+            title="Sign up"
             disabled={isSignupDisabled}
+            onPress={handleSignup}
           />
-        </View>
-
-        <View style={STYLES.container3}>
-          <Text style={BodyText.centersmalltext}>
-            Already have an account?{" "}
-          </Text>
-          <TouchableOpacity onPress={handleTapLogin}>
-            <Text style={[BodyText.centersmalltext3]}>Log in</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ marginTop: 10 }}>
-          <Bigbuttonicon
-            iconSource={GoogleIcon}
-            text="Sign up with Google"
-            backColor={COLORS.transparent}
-            textcolor={COLORS.black}
-          />
-
-          <Bigbuttonicon
-            iconSource={AppleIcon}
-            text="Sign up with Apple"
-            backColor={COLORS.black}
-            textcolor={COLORS.white}
-          />
+          {isLoading && (
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          )}
         </View>
       </View>
+
+      <View style={styles.separatorContainer}>
+        <View style={styles.separatorLine} />
+        <Text style={styles.separatorText}>or</Text>
+        <View style={styles.separatorLine} />
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <FlatButton2
+          iconSource={GoogleIcon}
+          text="Continue with Google"
+          onPress={signInWithGoogle}
+        />
+      </View>
+
+      <TouchableOpacity onPress={handleTapLogin}>
+        <Text style={styles.linkText}>Already have an account? Login</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  // Define custom styles for the alert
-  alert: {
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "red",
-    backgroundColor: "lightblue",
+  // Add your styles here
+  input: {
+    height: 40,
+    borderColor: COLORS.gray,
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingLeft: 10,
   },
-  // Define custom styles for the alert message
-  message: {
-    color: "green",
-    fontSize: 16,
-    fontWeight: "bold",
+  inputValid: {
+    borderColor: COLORS.green,
   },
-
+  inputFocused: {
+    borderColor: COLORS.primary,
+  },
   showTextContainer: {
     position: "absolute",
-    right: 12,
-    marginTop: 3,
-    justifyContent: "center",
-    height: "100%",
+    right: 10,
+    top: 15,
   },
   showTextContainerValid: {
     position: "absolute",
-    right: 40, // Adjust as needed
-    top: 1,
-    justifyContent: "center",
-    height: "100%",
+    right: 10,
+    top: 0,
   },
   showText: {
-    color: COLORS.black,
+    color: COLORS.primary,
   },
   showTextValid: {
-    color: COLORS.black,
-  },
-  forgotpasswordtext: {
-    color: COLORS.primarybackground,
-    marginTop: 16,
-    fontSize: SIZES.xSmall,
-  },
-  placeholder: {
-    position: "absolute",
-    top: 2, // Adjust as needed
-    left: 10,
-    fontSize: SIZES.xxSmall,
-    right: 0,
-    color: COLORS.black, // Placeholder color
-  },
-  input: {
-    width: "100%",
-    fontSize: SIZES.medium,
-    fontWeight: FONT.bold,
-    color: COLORS.primarybackground,
-    marginTop: 3,
-    //textAlignVertical: "center",
-    justifyContent: "center",
-    height: "100%",
-  },
-  inputFocused: {
-    borderColor: COLORS.primarybackground,
-  },
-  inputValid: {
-    borderBottomColor: COLORS.blue,
+    color: COLORS.green,
   },
   icon: {
     position: "absolute",
     right: 10,
-    top: 18,
+    top: 15,
     width: 20,
     height: 20,
-    tintColor: COLORS.green, // Color for valid input
+  },
+  buttonContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  separatorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  separatorLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: COLORS.gray,
+  },
+  separatorText: {
+    marginHorizontal: 10,
+    color: COLORS.gray,
+  },
+  linkText: {
+    color: COLORS.primary,
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 
