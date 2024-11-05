@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   Text,
   Image,
@@ -23,7 +23,8 @@ import {
   SIZES,
   FONT,
 } from "../constants/theme";
-
+import api from "../constants/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const NewPassword = () => {
   const navigation = useNavigation(); // Initialize navigation
   const route = useRoute(); // Get the route object
@@ -46,65 +47,85 @@ const NewPassword = () => {
 
   const { email } = route.params; // Get the email parameter from route.params
 
- // const email = "emailhere";
-
-  const handleForgotPassword = () => {
-    // Navigate to Forgot Password screen
-    navigation.navigate("ForgotPassword");
-  };
+  useEffect(() => {
+    const fetchToken = async () => {
+      const savedToken = await AsyncStorage.getItem("tempToken");
+   
+    };
+    fetchToken();
+  }, []);
 
   const handleContinue = async () => {
     try {
       setIsLoading(true);
-      // Check if all fields are valid
+      const token = await AsyncStorage.getItem("tempToken");
+    
+
+      if (!token) {
+        Alert.alert("Error", "User not authenticated. Please log in again.");
+        navigation.navigate("Login"); // Redirect to Login screen if token is missing
+        return;
+      }
+
       if (isNewPasswordValid && isNewPasswordTwoValid) {
-        // Make a POST request to your backend signup endpoint
-        const response = await axios.post(
-          "https://firstbackend-1c5d.onrender.com/api/newpassword",
+        const response = await api.post(
+          "/newpassword",
           {
+            email: email,
             newPassword: newPassword,
             confirmPassword: newPasswordTwo,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 
-        // Handle successful signup
-        console.log("Password changed successful:", response.data);
+     
         Alert.alert(
           "Success",
-          "Password changed successful!",
+          "Password changed successfully!",
           [
             {
               text: "Sign in",
               onPress: () => {
-                navigation.navigate("PasswordChanged");
+                navigation.navigate("Login");
               },
-              style: "cancel", // You can customize the button style
             },
             {
               text: "OK",
               onPress: () => {
-                console.log("Continue pressed");
+                navigation.navigate("PasswordChanged");
               },
-              style: "default",
             },
           ],
           {
             cancelable: false,
-            style: styles.alert,
-            messageStyle: styles.message,
-          } // You can specify whether the alert is cancelable
+          }
         );
       } else {
-        // Display an error message if any field is invalid
         Alert.alert("Invalid Input", "Please fill in all fields correctly.");
       }
     } catch (error) {
-      // Handle errors
-    //  console.error("Error signing up:", error.response.data);
-      Alert.alert(
-        "Error",
-        "Error updating password. Please try again."
-      );
+      if (error.response) {
+        // Handling 'User not authenticated' error
+        if (error.response.data.error === "User not authenticated") {
+          Alert.alert(
+            "Authentication Error",
+            "Your session has expired. Please log in again."
+          );
+          navigation.navigate("Login"); // Redirect to Login screen
+        } else {
+          Alert.alert(
+            "Error",
+            error.response.data.error || "Error updating password."
+          );
+        }
+      } else {
+       
+        Alert.alert("Error", "Error updating password. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -141,26 +162,26 @@ const NewPassword = () => {
     if (isNewPasswordValid) {
       // If password is valid, position the "Show" text to the left
       return (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPasswordShown(!isPasswordShown)}
           style={styles.showTextContainerValid}
         >
           <Text style={styles.showTextValid}>
             {isPasswordShown ? "Hide" : "Show"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       );
     } else {
       // If password is invalid, maintain the initial position of the "Show" text
       return (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPasswordShown(!isPasswordShown)}
           style={styles.showTextContainer}
         >
           <Text style={styles.showText}>
             {isPasswordShown ? "Hide" : "Show"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       );
     }
   };
@@ -169,26 +190,26 @@ const NewPassword = () => {
     if (isNewPasswordTwoValid) {
       // If password is valid, position the "Show" text to the left
       return (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPasswordShown(!isPasswordShown)}
           style={styles.showTextContainerValid}
         >
           <Text style={styles.showTextValid}>
             {isPasswordShown ? "Hide" : "Show"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       );
     } else {
       // If password is invalid, maintain the initial position of the "Show" text
       return (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPasswordShown(!isPasswordShown)}
           style={styles.showTextContainer}
         >
           <Text style={styles.showText}>
             {isPasswordShown ? "Hide" : "Show"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       );
     }
   };
@@ -198,14 +219,17 @@ const NewPassword = () => {
       <View>
         <View style={{ marginTop: 15 }}>
           <Text style={BodyText.Header}>Your New Password</Text>
-          <Text style={[BodyText.centersmalltext2, {marginTop: -15}]}>{email}</Text>
+          <Text style={[BodyText.centersmalltext2, { marginTop: -15 }]}>
+            {email}
+          </Text>
         </View>
 
         <View
-          style={[ 
+          style={[
             loginstyles.inputArea,
             isNewPasswordValid && styles.inputValid,
-            isNewPasswordFocused && styles.inputFocused, {marginTop: 40}
+            isNewPasswordFocused && styles.inputFocused,
+            { marginTop: 40 },
           ]}
         >
           <TextInput
@@ -276,7 +300,7 @@ const NewPassword = () => {
               fontWeight: FONT.bold,
             }}
           >
-            6+ characters, atleast 1 uppercase & 1 number
+            8+ characters, atleast 1 uppercase & 1 number
           </Text>
         </View>
 
@@ -286,6 +310,7 @@ const NewPassword = () => {
             {/* Render ActivityIndicator */}
             {isLoading && (
               <ActivityIndicator
+                style={BUTTON.activitybutton}
                 size="small"
                 color={COLORS.primarybackground}
               />
@@ -301,7 +326,7 @@ const NewPassword = () => {
                 handleContinue();
               }
             }}
-            disabled={isContinueDisabled}
+            disabled={isContinueDisabled || isLoading}
           />
         </View>
 
@@ -309,9 +334,9 @@ const NewPassword = () => {
           <Text style={BodyText.centersmalltext}>
             Already have an account?{" "}
           </Text>
-          <TouchableOpacity onPress={handleLogin}>
+          <Pressable onPress={handleLogin}>
             <Text style={[BodyText.centersmalltext3]}>Log in</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
     </SafeAreaView>

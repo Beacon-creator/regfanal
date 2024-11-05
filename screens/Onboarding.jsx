@@ -2,13 +2,13 @@
 import React from "react";
 import { Text, View, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { COLORS, STYLES, IMG, SIZES, FONT } from "../constants/theme";
+import { COLORS, RESPONSIVENESS } from "../constants/theme";
 import { images } from "../constants/images";
 import FlatButton from "../components/button";
 import FlatButton2 from "../components/button2";
 
 const Onboarding = () => {
-  const navigation = useNavigation(); // Use useNavigation to get the navigation object
+  const navigation = useNavigation();
 
   const handleStart = () => {
     navigation.navigate("Signup");
@@ -19,21 +19,17 @@ const Onboarding = () => {
   };
 
   return (
-    <View style={STYLES.container}>
-        <Text style={{   marginTop: 50,
-          fontSize: SIZES.xxLarge,
-          fontWeight: FONT.bold, color: COLORS.primarybackground }}>RegFanal</Text>
-      <Image source={images.onboarding1} style={IMG.midimage} />
+    <View style={RESPONSIVENESS.container}>
+      <Text style={RESPONSIVENESS.title}>RegFanal</Text>
+      <Image
+        source={images.onboarding1}
+        style={RESPONSIVENESS.image}
+        resizeMode="contain"
+      />
 
-      <Text
-        style={{
-          marginTop: 20,
-          fontSize: SIZES.xxLarge,
-          fontWeight: FONT.bold,
-        }}
-      >
-        <Text style={{ color: COLORS.primarybackground }}>Opportunities</Text>{" "}
-        are always with us 😊
+      <Text style={RESPONSIVENESS.subtitle}>
+        <Text style={RESPONSIVENESS.highlight}>Opportunities</Text> are always
+        with us 😊
       </Text>
 
       <FlatButton text="Let's get started" onPress={handleStart} />
@@ -43,13 +39,7 @@ const Onboarding = () => {
         onPress={handleSignIn}
       />
       <View>
-        <Text
-          style={{
-            marginTop: 10,
-            fontSize: SIZES.xxxSmall,
-            fontWeight: FONT.bold,
-          }}
-        >
+        <Text style={RESPONSIVENESS.illustrationCredit}>
           Illustration by streamlinehq
         </Text>
       </View>

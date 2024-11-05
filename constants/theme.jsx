@@ -1,3 +1,5 @@
+import { Dimensions } from "react-native";
+
 const COLORS = {
   primarybackground: "#3a6be4",
   secondarybackground: "#edf1fd",
@@ -93,8 +95,6 @@ const STYLES = {
   container4: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: 'space-between',
-    marginTop: 30,
   },
 };
 
@@ -111,6 +111,12 @@ const IMG = {
     height: 310,
     marginTop: 64,
     padding: 10,
+  },
+
+  backbut: {
+   
+    marginTop: 20,
+
   },
 };
 
@@ -144,12 +150,9 @@ const BUTTON = {
 
   activitybutton: {
     position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
+    top: "60%",
+    left: "50%",
+    transform: [{ translateX: -10 }, { translateY: -10 }], // Center the loader
   },
 };
 
@@ -174,7 +177,7 @@ const BodyText = {
     fontWeight: FONT.bold,
     fontSize: SIZES.xLarge,
     textAlign: "center",
-    marginBottom: 20,
+    margin: 20,
     color: COLORS.black,
   },
 
@@ -283,6 +286,47 @@ const loginstyles = {
   },
 };
 
+const { width, height } = Dimensions.get("window");
+
+const RESPONSIVENESS = {
+  container: {
+    flex: 1,
+    paddingHorizontal: width * 0.1, // 10% padding horizontally
+    paddingVertical: height * 0.05, // 5% padding vertically
+    alignItems: "center",
+    backgroundColor: COLORS.background,
+  },
+  title: {
+    marginTop: height * 0.05, // Responsive top margin
+    fontSize: SIZES.xxLarge,
+    fontWeight: FONT.bold,
+    color: COLORS.primarybackground,
+    textAlign: "center",
+  },
+  image: {
+    width: width * 0.8, // 80% of screen width
+    height: height * 0.4, // 40% of screen height
+    marginVertical: height * 0.02,
+  },
+  subtitle: {
+    fontSize: SIZES.large,
+    fontWeight: FONT.bold,
+    color: COLORS.textPrimary,
+    textAlign: "center",
+    marginVertical: height * 0.02,
+    paddingHorizontal: width * 0.05,
+  },
+  highlight: {
+    color: COLORS.primarybackground,
+  },
+  illustrationCredit: {
+    marginTop: height * 0.02,
+    fontSize: SIZES.xxxSmall,
+    fontWeight: FONT.bold,
+    textAlign: "center",
+  },
+};
+
 export {
   COLORS,
   FONT,
@@ -294,4 +338,7 @@ export {
   IMG,
   BUTTON,
   BUTTONText,
+  RESPONSIVENESS,
+  width,
+  height,
 };

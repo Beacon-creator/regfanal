@@ -5,55 +5,57 @@ import {
   Text,
   Alert,
   ActivityIndicator,
-  TouchableOpacity
+  Pressable,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import FlatButton2 from "../components/button2";
-import { COLORS, BodyText,BUTTON, STYLES, SIZES, FONT } from "../constants/theme";
+import {
+  COLORS,
+  BodyText,
+  BUTTON,
+  STYLES,
+  SIZES,
+  FONT,
+} from "../constants/theme";
+import api from "../constants/api";
 import SmallBox from "../components/smallbox";
 import axios from "axios";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function VerifyPasswordChangeCode() {
-  const navigation = useNavigation(); // Initialize navigation
-  const route = useRoute(); // Get the route object
+  const navigation = useNavigation();
+  const route = useRoute();
 
-  const { email } = route.params; // Get the email parameter from route.params
+  const email = route.params?.email || ""; // Safely accessing email with a default value
 
-//const email = 'email';
-  const [isContinueDisabled, setIsContinueDisabled] = useState(true); // Initially disabled
+  const [isContinueDisabled, setIsContinueDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const smallBoxRef = useRef(null);
 
-
   const handlePasswordVerificationContinue = async () => {
-    setIsLoading(true); // Start loading
-
+    setIsLoading(true);
     try {
       const otpArrays = smallBoxRef.current.getValue();
-      const uniqueOtp = otpArrays.join(""); // Concatenate OTP digits into a single string
-      console.log(uniqueOtp);
-      await axios.post(
-        "https://firstbackend-1c5d.onrender.com/api/verifypasswordotp",
-        {
-          uniqueOtp,
-        }
-      );
+      const uniqueOtp = otpArrays.join("");
+      const response = await api.post("/verifypasswordotp", {
+        uniqueOtp,
+        email,
+      });
+
       Alert.alert("Success", "Email verified successfully");
-      navigation.navigate("NewPassword");
+      const { token } = response.data;
+      await AsyncStorage.setItem("tempToken", token);
+      navigation.navigate("NewPassword", { email, token });
     } catch (error) {
       Alert.alert("Error", "Code is invalid. Please try again.");
-      console.error("Error verifying email:", error);
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
   const handleResendPasscode = async () => {
-   
-
     try {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
       await axios.post(
         "https://firstbackend-1c5d.onrender.com/api/resendotppassword",
         {
@@ -66,13 +68,10 @@ function VerifyPasswordChangeCode() {
         "Error",
         "Failed to resend verification code. Please try again."
       );
-      console.error("Error resending verification code:", error);
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false); // This will run regardless of success or error
     }
   };
-
-
 
   const handleSmallBoxChange = (value) => {
     const allFieldsFilled =
@@ -87,48 +86,44 @@ function VerifyPasswordChangeCode() {
           <Text style={BodyText.Header}>Verification Code</Text>
           <View>
             <Text style={[BodyText.centersmalltext2, { marginTop: -15 }]}>
-              sent to {email}
+              code has been sent to {email}
             </Text>
           </View>
         </View>
         <View style={{ marginTop: 40 }}>
           <SmallBox
             ref={smallBoxRef}
-            length={4} // Customize the length of the password input
-            inputStyle={{ borderColor: COLORS.borderBlue }} // Customize the style of the input
-            containerStyle={{ marginTop: 10 }} // Customize the style of the container
-            onChange={handleSmallBoxChange} // Callback function to handle changes in SmallBox
-            // Any additional props to pass to the TextInput component
+            length={4}
+            inputStyle={{ borderColor: COLORS.borderBlue }}
+            containerStyle={{ marginTop: 10 }}
+            onChange={handleSmallBoxChange}
           />
         </View>
 
         <View style={{ position: "relative" }}>
-          {/* Render the FlatButton2 and ActivityIndicator inside a parent container */}
-          <View style={BUTTON.activitybutton}>
-            {/* Render ActivityIndicator */}
-            {isLoading && (
-              <ActivityIndicator
-                size="small"
-                color={COLORS.primarybackground}
-              />
-            )}
-          </View>
-          {/* Render FlatButton2 */}
           <FlatButton2
-            text="Continue"
+            text={isLoading ? "" : "Continue"} // Hide text when loading
             backColor={COLORS.primarybackground}
-            textColor={COLORS.white}
+            textcolor={COLORS.white}
             onPress={() => {
               if (!isContinueDisabled) {
-                handlePasswordVerificationContinue(); // Call the function
+                handlePasswordVerificationContinue();
               }
             }}
-            disabled={isContinueDisabled}
+            disabled={isContinueDisabled || isLoading}
           />
+
+          {isLoading && (
+            <ActivityIndicator
+              style={BUTTON.activitybutton}
+              size="small"
+              color={COLORS.white} // Spinner color matches button text color
+            />
+          )}
         </View>
 
         <View style={{ marginTop: 15 }}>
-          <TouchableOpacity onPress={handleResendPasscode}>
+          <Pressable onPress={handleResendPasscode}>
             <Text
               style={{
                 fontSize: SIZES.medium,
@@ -137,20 +132,9 @@ function VerifyPasswordChangeCode() {
                 textAlign: "center",
               }}
             >
-              {" "}
               Resend code
             </Text>
-          </TouchableOpacity>
-          {/* Render the FlatButton2 and ActivityIndicator inside a parent container */}
-          <View style={BUTTON.activitybutton}>
-            {/* Render ActivityIndicator */}
-            {isLoading && (
-              <ActivityIndicator
-                size="small"
-                color={COLORS.primarybackground}
-              />
-            )}
-          </View>
+          </Pressable>
         </View>
       </View>
     </SafeAreaView>

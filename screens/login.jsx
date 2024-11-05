@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   View,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   Text,
   Image,
@@ -29,8 +29,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as WebBrowser from "expo-web-browser";
 import * as AuthSession from "expo-auth-session";
-import * as Google from 'expo-auth-session/providers/google';
-
+import * as Google from "expo-auth-session/providers/google";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -70,11 +69,7 @@ const Login = () => {
           }
         );
 
-        // Handle successful login
-        //  console.log("Login successful:", response.data);
-        // Store the token in AsyncStorage
         await AsyncStorage.setItem("auth_token", response.data.token);
-        //    console.log("Data and token stored successfully");
 
         Alert.alert(
           "Success",
@@ -95,8 +90,6 @@ const Login = () => {
         Alert.alert("Invalid Input", "Please fill in all fields correctly.");
       }
     } catch (error) {
-      // Handle errors
-      // console.error("Incorrect data:", error.response.data);
       Alert.alert(
         "Warning",
         "Username or password is incorrect. Please try again."
@@ -106,76 +99,64 @@ const Login = () => {
     }
   };
 
+  const handleLoginDiscord = async () => {
+    try {
+      setIsLoading(true);
 
-const handleLoginDiscord = async () => {
-  try {
-    setIsLoading(true);
-    console.log("Starting Discord login...");
+      const redirectUri = AuthSession.makeRedirectUri({
+        scheme: "com.fanal.eduotter", // Your app's custom scheme
+      });
 
-    const redirectUri = AuthSession.makeRedirectUri({
-      scheme: "com.fanal.eduotter", // Your app's custom scheme
-    });
-    console.log("Redirect URI:", redirectUri);
+      const authUrl = `https://firstbackend-1c5d.onrender.com/api/auth/discord?redirect_uri=${encodeURIComponent(
+        redirectUri
+      )}`;
 
-    const authUrl = `https://firstbackend-1c5d.onrender.com/api/auth/discord?redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}`;
-    console.log("Auth URL:", authUrl);
+      const result = await WebBrowser.openAuthSessionAsync(
+        authUrl,
+        redirectUri
+      );
 
-    const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
-    console.log("Auth result:", result);
+      if (result.type === "success" && result.url) {
+        const redirectUrl = result.url;
+        const tokenMatch = redirectUrl.match(/token=([^&]*)/);
 
-    if (result.type === "success" && result.url) {
-      const redirectUrl = result.url;
-      const tokenMatch = redirectUrl.match(/token=([^&]*)/);
+        if (tokenMatch) {
+          const token = tokenMatch[1];
 
-      if (tokenMatch) {
-        const token = tokenMatch[1];
-        console.log("Extracted token:", token);
+          // Store the token in AsyncStorage
+          await AsyncStorage.setItem("auth_token", token);
 
-        // Store the token in AsyncStorage
-        await AsyncStorage.setItem("auth_token", token);
-
-        Alert.alert("Success", "Login successful!", [
-          {
-            text: "OK",
-            onPress: () => {
-              navigation.navigate("Onboarding");
+          Alert.alert("Success", "Login successful!", [
+            {
+              text: "OK",
+              onPress: () => {
+                navigation.navigate("Onboarding");
+              },
             },
-          },
-        ]);
+          ]);
+        } else {
+          Alert.alert(
+            "Login Failed",
+            "Token not found. Something went wrong during the login process."
+          );
+        }
       } else {
-        console.log("Token not found in the URL");
         Alert.alert(
           "Login Failed",
-          "Token not found. Something went wrong during the login process."
+          "Something went wrong during the login process."
         );
       }
-    } else {
-      console.log("Authentication failed or cancelled:", result);
-      Alert.alert(
-        "Login Failed",
-        "Something went wrong during the login process."
-      );
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Error during Discord login:", error);
-    Alert.alert("Error", "Something went wrong. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
+  const handleLoginApple = async () => {
+    Alert.alert("Login Failed", "Apple login is not available for now.");
+  };
 
-
-
- const handleLoginApple = async () =>{
-   Alert.alert(
-     "Login Failed",
-     "Apple login is not available for now."
-   );
- }
- 
   const handleTapSignup = () => {
     // Navigate to Forgot Password screen
     navigation.navigate("Signup");
@@ -218,26 +199,26 @@ const handleLoginDiscord = async () => {
     if (isPasswordValid) {
       // If password is valid, position the "Show" text to the left
       return (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPasswordShown(!isPasswordShown)}
           style={styles.showTextContainerValid}
         >
           <Text style={styles.showTextValid}>
             {isPasswordShown ? "Hide" : "Show"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       );
     } else {
       // If password is invalid, maintain the initial position of the "Show" text
       return (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPasswordShown(!isPasswordShown)}
           style={styles.showTextContainer}
         >
           <Text style={styles.showText}>
             {isPasswordShown ? "Hide" : "Show"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       );
     }
   };
@@ -258,7 +239,7 @@ const handleLoginDiscord = async () => {
         >
           <TextInput
             placeholderTextColor={COLORS.black}
-            keyboardType="default"
+            inputMode="default"
             style={[styles.input, isUsernameFocused && styles.inputFocused]}
             value={username}
             onChangeText={handleUsernameChange}
@@ -312,7 +293,7 @@ const handleLoginDiscord = async () => {
         </View>
 
         <View style={{ marginTop: 10 }}>
-          <TouchableOpacity onPress={handleForgotPassword}>
+          <Pressable onPress={handleForgotPassword}>
             <Text
               style={{
                 color: COLORS.primarybackground,
@@ -322,23 +303,12 @@ const handleLoginDiscord = async () => {
             >
               Forgot Password
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
-        <View style={{ marginTop: 10, position: "relative" }}>
-          {/* Render the FlatButton2 and ActivityIndicator inside a parent container */}
-          <View style={BUTTON.activitybutton}>
-            {/* Render ActivityIndicator */}
-            {isLoading && (
-              <ActivityIndicator
-                size="small"
-                color={COLORS.primarybackground}
-              />
-            )}
-          </View>
-          {/* Render FlatButton2 */}
+        <View style={{ marginTop: 10 }}>
           <FlatButton2
-            text="Log in"
+            text={isLoading ? "" : "Log in"} // Hide text when loading
             backColor={COLORS.primarybackground}
             textcolor={COLORS.white}
             onPress={() => {
@@ -346,21 +316,26 @@ const handleLoginDiscord = async () => {
                 handleLogin();
               }
             }}
-            disabled={isLoginDisabled}
+            disabled={isLoginDisabled || isLoading}
           />
+
+          {isLoading && (
+            <ActivityIndicator
+              style={BUTTON.activitybutton}
+              size="small"
+              color={COLORS.white} // Spinner color matches button text color
+            />
+          )}
         </View>
 
         <View style={STYLES.container3}>
           <Text style={BodyText.centersmalltext}>Don't have an account? </Text>
-          <TouchableOpacity onPress={handleTapSignup}>
+          <Pressable onPress={handleTapSignup}>
             <Text style={[BodyText.centersmalltext3]}>Sign up</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         <View style={{ marginTop: 20 }}>
-          {isLoading && (
-            <ActivityIndicator size="small" color={COLORS.primarybackground} />
-          )}
           <Bigbuttonicon
             iconSource={DiscordIcon}
             text="Sign in with Discord"

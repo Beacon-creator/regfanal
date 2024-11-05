@@ -8,9 +8,10 @@ const SmallBox = forwardRef((props, ref) => {
   // Refs array to hold refs of TextInput components
   const refs = [];
 
-  const handleRef = (ref, index) => {
-    refs[index] = ref;
+  const handleRef = (inputRef, index) => {
+    refs[index] = inputRef;
   };
+
   useImperativeHandle(ref, () => ({
     getValue: () => inputValue,
   }));
@@ -18,42 +19,26 @@ const SmallBox = forwardRef((props, ref) => {
   const handleChange = (index, value) => {
     if (/^\d*$/.test(value)) {
       const newInputValue = [...inputValue];
-      newInputValue[index] = value.toString(); // Convert value to string
+      newInputValue[index] = value; // Set the current value
       setInputValue(newInputValue);
       props.onChange(newInputValue);
 
-      // Automatically focus on the next input box if the current one is filled
-      if (index < props.length - 1 && value !== "") {
-        refs[index + 1].focus();
-      }
-    } else if (value === "") {
-      // Handle deletion: clear the current input and focus on the previous box
-      const newInputValue = [...inputValue];
-      newInputValue[index] = "";
-      setInputValue(newInputValue);
-
-      if (index > 0) {
-        refs[index - 1].focus();
+      if (value !== "" && index < props.length - 1) {
+        refs[index + 1].focus(); // Move to the next input if filled
+      } else if (value === "" && index > 0) {
+        refs[index - 1].focus(); // Move to the previous input if empty
       }
     }
   };
 
-   const handleFocus = (index) => {
-     if (!inputValue[index]) {
-       const newInputValue = [...inputValue];
-       newInputValue[index] = "";
-       setInputValue(newInputValue);
-     }
-     // Ensure cursor remains at the end of the input
-     refs[index].setSelection(inputValue[index] ? 1 : 0);
-   };
-
-  const handleBlur = (index) => {
-    const newInputValue = [...inputValue];
-    if (!newInputValue[index]) {
-      // Preserve the entered value if it's not empty
-      newInputValue[index] = inputValue[index] || "";
-      setInputValue(newInputValue);
+  const handleKeyPress = (index, key) => {
+    if (key === "Backspace" && inputValue[index] === "") {
+      if (index > 0) {
+        const newInputValue = [...inputValue];
+        newInputValue[index - 1] = ""; // Clear the previous input value
+        setInputValue(newInputValue); // Update the state
+        refs[index - 1].focus(); // Focus on the previous input box
+      }
     }
   };
 
@@ -62,7 +47,7 @@ const SmallBox = forwardRef((props, ref) => {
       {inputValue.map((value, index) => (
         <TextInput
           key={index}
-          ref={(ref) => handleRef(ref, index)}
+          ref={(inputRef) => handleRef(inputRef, index)}
           style={[
             styles.input,
             props.inputStyle,
@@ -72,15 +57,18 @@ const SmallBox = forwardRef((props, ref) => {
           value={value}
           onChangeText={(text) => handleChange(index, text)}
           maxLength={1}
-          keyboardType="numeric"        
-          onFocus={() => handleFocus(index)}
-          onBlur={() => handleBlur(index)}
+          keyboardType="numeric"
+          onKeyPress={({ nativeEvent }) =>
+            handleKeyPress(index, nativeEvent.key)
+          }
+          onFocus={() =>
+            refs[index].setNativeProps({ selection: { start: 1, end: 1 } })
+          }
         />
       ))}
     </View>
   );
 });
-
 
 const styles = StyleSheet.create({
   container: {
@@ -102,6 +90,5 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primarybackground,
   },
 });
-
 
 export default SmallBox;

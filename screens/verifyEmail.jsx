@@ -5,11 +5,18 @@ import {
   Text,
   ActivityIndicator,
   Alert,
-  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import FlatButton2 from "../components/button2";
-import { COLORS,BUTTON, BodyText, STYLES, SIZES, FONT } from "../constants/theme";
+import {
+  COLORS,
+  BUTTON,
+  BodyText,
+  STYLES,
+  SIZES,
+  FONT,
+} from "../constants/theme";
 import SmallBox from "../components/smallbox";
 import axios from "axios";
 
@@ -30,7 +37,6 @@ function VerifyEmail() {
     try {
       const otpArray = smallBoxRef.current.getValue();
       const otp = otpArray.join(""); // Concatenate OTP digits into a single string
-      // console.log(otp);
       await axios.post("https://firstbackend-1c5d.onrender.com/api/verifyotp", {
         otp,
       });
@@ -39,7 +45,6 @@ function VerifyEmail() {
       navigation.navigate("Login");
     } catch (error) {
       Alert.alert("Error", "Invalid code. Please try again.");
-      // console.error("Error verifying email:", error);
     } finally {
       setIsLoading(false); // Stop loading
     }
@@ -57,7 +62,6 @@ function VerifyEmail() {
         "Error",
         "Failed to resend verification code. Please try again."
       );
-    //  console.error("Error resending verification code:", error);
     } finally {
       setIsLoading(false); // Stop loading
     }
@@ -91,18 +95,8 @@ function VerifyEmail() {
           />
         </View>
 
+        {/* Centering ActivityIndicator over the Continue button */}
         <View style={{ position: "relative" }}>
-          {/* Render the FlatButton2 and ActivityIndicator inside a parent container */}
-          <View style={BUTTON.activitybutton}>
-            {/* Render ActivityIndicator */}
-            {isLoading && (
-              <ActivityIndicator
-                size="small"
-                color={COLORS.primarybackground}
-              />
-            )}
-          </View>
-          {/* Render FlatButton2 */}
           <FlatButton2
             text="Continue"
             backColor={COLORS.primarybackground}
@@ -112,12 +106,20 @@ function VerifyEmail() {
                 handleVerificationEmail();
               }
             }}
-            disabled={isContinueDisabled} // Disable based on isForgotPasswordDisabled
+            disabled={isContinueDisabled || isLoading} // Disable based on isContinueDisabled or isLoading
           />
+
+          {isLoading && (
+            <ActivityIndicator
+              style={BUTTON.activitybutton}
+              size="small"
+              color={COLORS.white}
+            />
+          )}
         </View>
 
         <View style={{ marginTop: 15 }}>
-          <TouchableOpacity onPress={handleResendEmailVerificationcode}>
+          <Pressable onPress={handleResendEmailVerificationcode}>
             <Text
               style={{
                 fontSize: SIZES.medium,
@@ -126,20 +128,9 @@ function VerifyEmail() {
                 textAlign: "center",
               }}
             >
-              {" "}
               Resend code
             </Text>
-          </TouchableOpacity>
-          {/* Render the FlatButton2 and ActivityIndicator inside a parent container */}
-          <View style={BUTTON.activitybutton}>
-            {/* Render ActivityIndicator */}
-            {isLoading && (
-              <ActivityIndicator
-                size="small"
-                color={COLORS.primarybackground}
-              />
-            )}
-          </View>
+          </Pressable>
         </View>
       </View>
     </SafeAreaView>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   View,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   Text,
   Image,
@@ -16,6 +16,7 @@ import {
   BUTTON,
   loginstyles,
   SIZES,
+  RESPONSIVENESS,
   FONT,
 } from "../constants/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,11 +27,7 @@ import Check from "../assets/checksuccess.png";
 import Bigbuttonicon from "../components/bigbuttonicon";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
-import "../googleConfig"; // Import the Google Signin configuration
+import { Linking } from "react-native"; // Import Linking for opening URLs
 
 const Signup = () => {
   const navigation = useNavigation(); // Initialize navigation
@@ -58,9 +55,8 @@ const Signup = () => {
   const handleSignup = async () => {
     try {
       setIsLoading(true);
-      // Check if all fields are valid
       if (isUsernameValid && isEmailValid && isPasswordValid) {
-        // Make a POST request to your backend signup endpoint
+
         const response = await axios.post(
           "https://firstbackend-1c5d.onrender.com/api/signup",
           {
@@ -69,8 +65,6 @@ const Signup = () => {
             password: password,
           }
         );
-
-        // Handle successful signup
         Alert.alert(
           "Success",
           "Signup successful!",
@@ -82,10 +76,10 @@ const Signup = () => {
                   email: email,
                 });
               },
-              style: "cancel",
+              style: "cancel", // You can customize the button style
             },
             {
-              text: "Sign in",
+              text: "Verify",
               onPress: () => {
                 navigation.navigate("VerifyEmail", {
                   email: email,
@@ -98,14 +92,14 @@ const Signup = () => {
             cancelable: false,
             style: styles.alert,
             messageStyle: styles.message,
-          }
+          } // You can specify whether the alert is cancelable
         );
       } else {
         // Display an error message if any field is invalid
         Alert.alert("Invalid Input", "Please fill in all fields correctly.");
       }
     } catch (error) {
-      // Handle errors
+     
       Alert.alert(
         "Error",
         "Email is already in use. Please check details again."
@@ -140,7 +134,6 @@ const Signup = () => {
 
   const handleUsernameChange = (text) => {
     setUsername(text);
-    // Check if username has at least six characters
     setIsUsernameValid(text.length >= 6);
   };
 
@@ -161,8 +154,7 @@ const Signup = () => {
   };
 
   const validatePassword = (password) => {
-    // Password validation
-    // At least 6 characters, one uppercase letter, and one number
+   
     const regex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
     return regex.test(password);
   };
@@ -171,71 +163,58 @@ const Signup = () => {
     if (isPasswordValid) {
       // If password is valid, position the "Show" text to the left
       return (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPasswordShown(!isPasswordShown)}
           style={styles.showTextContainerValid}
         >
           <Text style={styles.showTextValid}>
             {isPasswordShown ? "Hide" : "Show"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       );
     } else {
       // If password is invalid, maintain the initial position of the "Show" text
       return (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setIsPasswordShown(!isPasswordShown)}
           style={styles.showTextContainer}
         >
           <Text style={styles.showText}>
             {isPasswordShown ? "Hide" : "Show"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       );
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signUpWithGoogle = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      const idToken = userInfo.idToken;
-
-      // Send the idToken to your backend for verification and login
-      const response = await axios.post(
-        "https://firstbackend-1c5d.onrender.com/api/auth/google",
+      const response = await fetch(
+        "https://firstbackend-1c5d.onrender.com/api/login",
         {
-          token: idToken,
+          method: "POST",
         }
       );
 
-      if (response.status === 200) {
-        // Handle successful login
-        Alert.alert("Success", "Login successful!");
-        // You can navigate to the next screen or perform other actions here
+      const data = await response.json();
+
+      // Use Linking to open the URL in the browser
+      if (data && data.url) {
+        Linking.openURL(data.url);
       } else {
-        Alert.alert("Error", "Login failed. Please try again.");
+        Alert.alert("Error", "Failed to initiate Google Sign-Up.");
       }
     } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        Alert.alert("Cancelled", "User cancelled the login process");
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        Alert.alert("In Progress", "Login is in progress");
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert(
-          "Play Services Not Available",
-          "Play services are not available or outdated"
-        );
-      } else {
-        Alert.alert("Error", "An error occurred during login");
-      }
+      Alert.alert("Error", "Something went wrong with Google Sign-Up.");
+     
     }
   };
 
   return (
     <SafeAreaView style={{ ...STYLES.container, flex: 1 }}>
       <View>
-        <View style={{ marginTop: 50 }}>
+        <View style={{ marginTop: 15 }}>
+       
           <Text style={BodyText.Header}>Sign up to new opportunities</Text>
         </View>
 
@@ -248,13 +227,15 @@ const Signup = () => {
         >
           <TextInput
             placeholderTextColor={COLORS.black}
-            keyboardType="default"
+            inputMode="default"
             style={[styles.input, isUsernameFocused && styles.inputFocused]}
             value={username}
             onChangeText={handleUsernameChange}
+            // Clear the text input value when it's focused
             onFocus={handleUsernameFocus}
             onBlur={() => setIsUsernameFocused(false)}
           />
+          {/* Absolute positioning for the placeholder text */}
           <Text
             style={[
               styles.placeholder,
@@ -263,6 +244,8 @@ const Signup = () => {
           >
             Username
           </Text>
+
+          {/* Checkmark icon for valid email */}
           {isUsernameValid && <Image source={Check} style={styles.icon} />}
         </View>
 
@@ -275,21 +258,25 @@ const Signup = () => {
         >
           <TextInput
             placeholderTextColor={COLORS.black}
-            keyboardType="email-address"
-            style={[styles.input, isEmailFocused && styles.inputFocused]}
+            inputMode="email-address"
+            style={[styles.input, isUsernameFocused && styles.inputFocused]}
             value={email}
             onChangeText={handleEmailChange}
+            // Clear the text input value when it's focused
             onFocus={handleEmailFocus}
             onBlur={() => setIsEmailFocused(false)}
           />
+          {/* Absolute positioning for the placeholder text */}
           <Text
             style={[
               styles.placeholder,
               isEmailFocused && { color: COLORS.primarybackground },
             ]}
           >
-            Email Address
+            Email
           </Text>
+
+          {/* Checkmark icon for valid email */}
           {isEmailValid && <Image source={Check} style={styles.icon} />}
         </View>
 
@@ -302,14 +289,14 @@ const Signup = () => {
         >
           <TextInput
             placeholderTextColor={COLORS.black}
-            keyboardType="default"
+            secureTextEntry={!isPasswordShown}
             style={[styles.input, isPasswordFocused && styles.inputFocused]}
             value={password}
-            secureTextEntry={!isPasswordShown}
             onChangeText={handlePasswordChange}
             onFocus={handlePasswordFocus}
             onBlur={() => setIsPasswordFocused(false)}
           />
+          {/* Absolute positioning for the placeholder text */}
           <Text
             style={[
               styles.placeholder,
@@ -318,103 +305,150 @@ const Signup = () => {
           >
             Password
           </Text>
-          {renderShowText()}
+
+          {/* Checkmark icon for valid password */}
           {isPasswordValid && <Image source={Check} style={styles.icon} />}
+          {renderShowText()}
         </View>
 
-        <View style={styles.buttonContainer}>
-          <Bigbuttonicon
-            title="Sign up"
-            disabled={isSignupDisabled}
-            onPress={handleSignup}
+        <View style={{ marginVertical: 5 }}>
+          <Text
+            style={{
+              color: COLORS.othertext,
+              fontSize: SIZES.xxSmall,
+              fontWeight: FONT.bold,
+            }}
+          >
+            8+ characters, atleast 1 uppercase & 1 number
+          </Text>
+        </View>
+
+        <View style={{ position: "relative" }}>
+          {/* Render FlatButton2 */}
+          <FlatButton2
+            text="Continue"
+            backColor={COLORS.primarybackground}
+            textcolor={COLORS.white}
+            onPress={() => {
+              if (!isSignupDisabled && !isLoading) {
+                handleSignup();
+              }
+            }}
+            disabled={isSignupDisabled || isLoading} // Disable button during loading
           />
+          {/* Render the ActivityIndicator inside the button */}
           {isLoading && (
-            <ActivityIndicator size="large" color={COLORS.primary} />
+            <ActivityIndicator
+              style={BUTTON.activitybutton}
+              size="small"
+              color={COLORS.primarybackground}
+            />
           )}
         </View>
-      </View>
 
-      <View style={styles.separatorContainer}>
-        <View style={styles.separatorLine} />
-        <Text style={styles.separatorText}>or</Text>
-        <View style={styles.separatorLine} />
-      </View>
+        <View style={STYLES.container3}>
+          <Text style={BodyText.centersmalltext}>
+            Already have an account?{" "}
+          </Text>
+          <Pressable onPress={handleTapLogin}>
+            <Text style={[BodyText.centersmalltext3]}>Log in</Text>
+          </Pressable>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <FlatButton2
-          iconSource={GoogleIcon}
-          text="Continue with Google"
-          onPress={signInWithGoogle}
-        />
-      </View>
+        <View style={{ marginTop: 10 }}>
+          <Bigbuttonicon
+            iconSource={GoogleIcon}
+            text="Sign up with Google"
+            backColor={COLORS.transparent}
+            textcolor={COLORS.black}
+            onPress={isLoading ? null : signUpWithGoogle}
+            disabled={isLoading} // Disable Google button during loading
+          />
 
-      <TouchableOpacity onPress={handleTapLogin}>
-        <Text style={styles.linkText}>Already have an account? Login</Text>
-      </TouchableOpacity>
+          <Bigbuttonicon
+            iconSource={AppleIcon}
+            text="Sign up with Apple"
+            backColor={COLORS.black}
+            textcolor={COLORS.white}
+            disabled={isLoading} // Disable Apple button during loading
+          />
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  // Add your styles here
-  input: {
-    height: 40,
-    borderColor: COLORS.gray,
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
+  // Define custom styles for the alert
+  alert: {
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "red",
+    backgroundColor: "lightblue",
   },
-  inputValid: {
-    borderColor: COLORS.green,
+  // Define custom styles for the alert message
+  message: {
+    color: "green",
+    fontSize: 16,
+    fontWeight: "bold",
   },
-  inputFocused: {
-    borderColor: COLORS.primary,
-  },
+
   showTextContainer: {
     position: "absolute",
-    right: 10,
-    top: 15,
+    right: 12,
+    marginTop: 3,
+    justifyContent: "center",
+    height: "100%",
   },
   showTextContainerValid: {
     position: "absolute",
-    right: 10,
-    top: 0,
+    right: 40, // Adjust as needed
+    top: 1,
+    justifyContent: "center",
+    height: "100%",
   },
   showText: {
-    color: COLORS.primary,
+    color: COLORS.black,
   },
   showTextValid: {
-    color: COLORS.green,
+    color: COLORS.black,
+  },
+  forgotpasswordtext: {
+    color: COLORS.primarybackground,
+    marginTop: 16,
+    fontSize: SIZES.xSmall,
+  },
+  placeholder: {
+    position: "absolute",
+    top: 2, // Adjust as needed
+    left: 10,
+    fontSize: SIZES.xxSmall,
+    right: 0,
+    color: COLORS.black, // Placeholder color
+  },
+  input: {
+    width: "100%",
+    fontSize: SIZES.medium,
+    fontWeight: FONT.bold,
+    color: COLORS.primarybackground,
+    marginTop: 3,
+    //textAlignVertical: "center",
+    justifyContent: "center",
+    height: "100%",
+  },
+  inputFocused: {
+    borderColor: COLORS.primarybackground,
+  },
+  inputValid: {
+    borderBottomColor: COLORS.blue,
   },
   icon: {
     position: "absolute",
     right: 10,
-    top: 15,
+    top: 18,
     width: 20,
     height: 20,
-  },
-  buttonContainer: {
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  separatorContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  separatorLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: COLORS.gray,
-  },
-  separatorText: {
-    marginHorizontal: 10,
-    color: COLORS.gray,
-  },
-  linkText: {
-    color: COLORS.primary,
-    textAlign: "center",
-    marginTop: 20,
+    tintColor: COLORS.green, // Color for valid input
   },
 });
 
