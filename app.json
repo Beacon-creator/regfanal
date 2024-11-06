@@ -8,21 +8,19 @@
     "splash": {
       "image": "./assets/lefanal.png",
       "resizeMode": "cover",
-       "backgroundColor": "#ffffff"  
+      "backgroundColor": "#ffffff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fanal.eduotter"
     },
     "android": {
       "package": "com.fanal.eduotter",
-       "adaptiveIcon": {
+      "adaptiveIcon": {
         "foregroundImage": "./assets/fanal.png",
         "backgroundColor": "#ffffff"
       }
@@ -30,10 +28,7 @@
     "web": {
       "favicon": "./assets/checksuccess.png"
     },
-    "scheme": [
-      "my-scheme",
-      "com.fanal.eduotter"
-    ],
+    "scheme": ["my-scheme", "com.fanal.eduotter"],
     "extra": {
       "eas": {
         "projectId": "a6e50230-a66f-4b59-94fa-63f60cf84ef5"
