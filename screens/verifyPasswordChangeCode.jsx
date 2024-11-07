@@ -81,7 +81,7 @@ function VerifyPasswordChangeCode() {
 
   return (
     <SafeAreaView style={{ ...STYLES.container, flex: 1 }}>
-      <View style={{ marginTop: 40 }}>
+      <View style={{ marginTop: 10 }}>
         <View style={{ marginTop: 10 }}>
           <Text style={BodyText.Header}>Verification Code</Text>
           <View>

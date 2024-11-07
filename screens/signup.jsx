@@ -213,7 +213,7 @@ const Signup = () => {
   return (
     <SafeAreaView style={{ ...STYLES.container, flex: 1 }}>
       <View>
-        <View style={{ marginTop: 15 }}>
+        <View style={{ marginTop: 10 }}>
        
           <Text style={BodyText.Header}>Sign up to new opportunities</Text>
         </View>

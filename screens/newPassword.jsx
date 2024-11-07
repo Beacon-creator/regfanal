@@ -217,7 +217,7 @@ const NewPassword = () => {
   return (
     <SafeAreaView style={{ ...STYLES.container, flex: 1 }}>
       <View>
-        <View style={{ marginTop: 15 }}>
+        <View style={{ marginTop: 10 }}>
           <Text style={BodyText.Header}>Your New Password</Text>
           <Text style={[BodyText.centersmalltext2, { marginTop: -15 }]}>
             {email}

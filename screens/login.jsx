@@ -226,7 +226,7 @@ const Login = () => {
   return (
     <SafeAreaView style={{ ...STYLES.container, flex: 1 }}>
       <View>
-        <View style={{ marginTop: 15 }}>
+        <View style={{ marginTop: 10 }}>
           <Text style={BodyText.Header}>Welcome Back</Text>
         </View>
 

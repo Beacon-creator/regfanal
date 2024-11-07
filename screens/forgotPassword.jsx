@@ -54,7 +54,6 @@ function ForgotPassword() {
             {
               text: "Next",
               onPress: () => {
-               
                 navigation.navigate("VerifyPasswordChangeCode", { email }); // Pass email here
               },
             },
@@ -90,7 +89,7 @@ function ForgotPassword() {
 
   return (
     <SafeAreaView style={{ ...STYLES.container, flex: 1 }}>
-      <View style={{ marginTop: 40 }}>
+      <View style={{ marginTop: 10 }}>
         <View style={{ ...STYLES.container4 }}>
           <Pressable onPress={handleBackIconPress}>
             <Image style={IMG.backbut} source={backicon} />
@@ -153,19 +152,6 @@ function ForgotPassword() {
               color={COLORS.white}
             />
           )}
-        </View>
-
-        <View style={{ marginTop: 15 }}>
-          <Text
-            style={{
-              fontSize: SIZES.medium,
-              color: COLORS.primarybackground,
-              fontWeight: FONT.bold,
-              textAlign: "center",
-            }}
-          >
-            Need Help?
-          </Text>
         </View>
       </View>
     </SafeAreaView>
