@@ -25,7 +25,7 @@ android {
 
     namespace 'com.fanal.eduotter'
     defaultConfig {
-        applicationId 'com.fanal.eduotter'
+        applicationId 'com.fanal.regfanal'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
